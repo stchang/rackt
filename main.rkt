@@ -1,12 +1,14 @@
 #lang racketscript/base
 
 (require (for-syntax racket/base
+                     racket/match
                      racket/syntax
                      syntax/stx
                      syntax/parse)
          racketscript/interop
          racket/stxparam
-         racket/list)
+         racket/list
+         racket/match)
 
 (define React ($/require/* "react"))
 (define ReactDOM ($/require/* "react-dom"))
@@ -36,7 +38,8 @@
          use-ref
          use-imperative-handle
          use-layout-effect
-         use-debug-value)
+         use-debug-value
+         sexp->react)
 
 ;; Basic hooks
 (define (use-state default-state)
@@ -89,6 +92,23 @@
 
 ;; A small alias for readability
 (define <el create-element)
+
+;; A macro for nicer syntax and readability
+(define-syntax (sexp->react stx)
+  (syntax-parse stx
+    [(_ val)
+     #:when (or (string? (syntax->datum #'val)) 
+                (number? (syntax->datum #'val)))
+     #'(js-string val)]
+    [(_ (tag-name ([propName propVal] ...) child ...))
+     #'(begin
+         (create-element tag-name
+                         #:props ($/obj [propName propVal] ...)
+                         (sexp->react child) ...
+                         ))]
+    [(_ (tag-name child ...))
+     #'(sexp->react (tag-name () child ...))]
+                         ))
 
 ;; a macro version of <el that tries to hide some boilerplate
 (define-syntax <>
