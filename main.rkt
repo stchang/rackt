@@ -93,7 +93,7 @@
 ;; A small alias for readability
 (define <el create-element)
 
-;; A macro for nicer syntax and readability
+;; A macro to create elements with s-expression syntax
 (define-syntax (sexp->react stx)
   (syntax-parse stx
     [(_ val)
@@ -101,14 +101,11 @@
                 (number? (syntax->datum #'val)))
      #'(js-string val)]
     [(_ (tag-name ([propName propVal] ...) child ...))
-     #'(begin
-         (create-element tag-name
-                         #:props ($/obj [propName propVal] ...)
-                         (sexp->react child) ...
-                         ))]
+     #'(create-element tag-name
+                       #:props ($/obj [propName propVal] ...)
+                       (sexp->react child) ...)]
     [(_ (tag-name child ...))
-     #'(sexp->react (tag-name () child ...))]
-                         ))
+     #'(sexp->react (tag-name () child ...))]))
 
 ;; a macro version of <el that tries to hide some boilerplate
 (define-syntax <>
