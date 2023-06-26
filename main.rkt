@@ -8,7 +8,8 @@
          racketscript/interop
          racket/stxparam
          racket/list
-         racket/match)
+         racket/match
+         "html-tags.rkt")
 
 (define React ($/require/* "react"))
 (define ReactDOM ($/require/* "react-dom"))
@@ -39,7 +40,8 @@
          use-imperative-handle
          use-layout-effect
          use-debug-value
-         sexp->react)
+         sexp->react
+         (all-from-out "html-tags.rkt"))
 
 ;; Basic hooks
 (define (use-state default-state)
